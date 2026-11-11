@@ -1,0 +1,49 @@
+name: Build pitch432
+on:
+  workflow_dispatch:
+  push:
+    paths: ['pitch432.zip']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.9' }
+      - name: Extract
+        run: unzip -q -o pitch432.zip -d src
+      - name: Get SoundTouch
+        run: git clone --depth 1 --branch 2.3.3 https://codeberg.org/soundtouch/soundtouch.git st
+      - name: Build native
+        run: |
+          NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_ROOT}"
+          for abi in arm64-v8a armeabi-v7a; do
+            cmake -S src/native -B out/$abi \
+              -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
+              -DANDROID_ABI=$abi -DANDROID_PLATFORM=android-29 -DANDROID_STL=c++_static \
+              -DCMAKE_BUILD_TYPE=Release -DSOUNDTOUCH_DIR="$PWD/st"
+            cmake --build out/$abi -j
+          done
+      - name: Build app
+        working-directory: src
+        run: gradle assembleRelease --no-daemon
+      - name: Package module
+        run: |
+          M=pkg
+          mkdir -p $M/system/priv-app/Pitch432 $M/system/etc/permissions \
+            $M/system/lib64/soundfx $M/system/lib/soundfx \
+            $M/system/vendor/lib64/soundfx $M/system/vendor/lib/soundfx
+          cp -r src/module/. $M/
+          mv $M/privapp-permissions-pitch432.xml $M/system/etc/permissions/
+          cp src/app/build/outputs/apk/release/app-release.apk $M/system/priv-app/Pitch432/Pitch432.apk
+          for d in system system/vendor; do
+            cp out/arm64-v8a/libpitch432.so $M/$d/lib64/soundfx/
+            cp out/armeabi-v7a/libpitch432.so $M/$d/lib/soundfx/
+          done
+          (cd $M && zip -qr ../pitch432_module.zip .)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pitch432_module
+          path: pitch432_module.zip
