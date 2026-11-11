@@ -60,7 +60,6 @@ Only audio that goes through the normal mixer on the music output. These bypass 
 
 **v1.4** (current)
 - Fixed the effect not loading on Android 14 / HyperOS: the effect library header now reports library API version 3.0, which this device's audio HAL requires (version 2.0 was loaded and then rejected). The effect descriptor stays at control API 2.0, same as the stock effects.
-- Back to the clean module layout (no log, SELinux or boot scripts). Installing also removes the `/data/pitch432` folder and boot log left by v1.1-v1.3.
 
 **v1.3**
 - Debug build. Fixed the `magiskpolicy` syntax for creating the log folder's SELinux type (it accepts only one attribute per `type` statement).
