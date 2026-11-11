@@ -1,131 +1,52 @@
-===============================================================================
+# Security Policy
 
-                       GLOBAL-432HZ-CAP-AUDIO SECURITY POLICY
+## Overview
 
-===============================================================================
+This security policy outlines vulnerability disclosure guidelines, supported versions, and security best practices for the **Global-432Hz-Cap-Audio** project. Because this software interfaces directly with system audio daemons, low-level audio drivers, and real-time Digital Signal Processing (DSP) pipelines, maintaining system integrity and audio stream privacy is a top priority.
 
+---
 
+## 1. Supported Versions
 
-1. OVERVIEW
+Only the `main` branch and the most recent stable release actively receive security updates and patches.
 
--------------------------------------------------------------------------------
+| Version | Supported |
+| :--- | :--- |
+| `main` (Latest) | :white_check_mark: Yes |
+| Older Releases | :x: No |
 
-This security policy outlines reporting protocols, supported versions, and best
+---
 
-practices for the Global-432Hz-Cap-Audio project. Because this software 
+## 2. Reporting a Vulnerability
 
-interfaces directly with system audio daemons, low-level audio drivers, and 
+If you discover a security vulnerability—such as an audio buffer overrun, memory corruption risk, privilege escalation vector, or unauthorized access to captured system audio streams—please report it responsibly.
 
-real-time DSP pipelines, protecting system integrity and user audio privacy is 
+> **Crucial:** Do **not** open public GitHub issues for security vulnerabilities.
 
-a top priority.
+### Submission Guidelines
+* Submit details using **GitHub Private Vulnerability Reporting** (if enabled), or
+* Contact the project maintainers directly via email.
 
+### Information to Include
+When submitting a report, please provide:
+1. **Description:** A detailed explanation of the vulnerability and its potential impact.
+2. **Environment Details:** The OS, sound server (PipeWire, PulseAudio, WASAPI, CoreAudio), and project version.
+3. **Reproduction Steps:** A minimal Proof-of-Concept (PoC) script or step-by-step instructions.
+4. **Remediation:** Any suggested fixes or mitigation strategies (if available).
 
+### Response Timeline
+* **Acknowledgment:** Within **48–72 hours**.
+* **Updates:** Periodic status updates during triage, fixing, and patch release phases.
 
+---
 
+## 3. Security Considerations & Best Practices
 
-2. SUPPORTED VERSIONS
+### Privilege Minimization
+Do not run audio capture daemons or pitch-shifting scripts with elevated permissions (`root` or `Administrator`) unless strictly required for driver-level operations. Running within user space limits the potential impact of code execution exploits.
 
--------------------------------------------------------------------------------
+### Audio Stream Privacy
+Real-time audio capture software can intercept all sound input and output streams passing through the sound server. Ensure binaries are compiled from verified source code to prevent unauthorized logging or exfiltration of sensitive audio (e.g., private calls, voice inputs).
 
-Only the main branch and the most recent stable release receive active security 
-
-patches.
-
-
-
-Version              Supported
-
-------------------   ---------
-
-main (Latest)        YES
-
-Older Releases       NO
-
-
-
-
-
-3. REPORTING A VULNERABILITY
-
--------------------------------------------------------------------------------
-
-If you discover a security vulnerability (e.g., audio buffer overruns, memory 
-
-corruption, privilege escalation, or unauthorized access to captured system 
-
-audio streams), please report it responsibly.
-
-
-
-DO NOT open public GitHub issues for security vulnerabilities.
-
-
-
-Reporting Protocol:
-
-  * Submit details via GitHub's Private Vulnerability Reporting feature, OR
-
-  * Email the repository maintainers directly.
-
-
-
-Please include the following details in your report:
-
-  - Detailed description of the vulnerability and potential impact.
-
-  - Operating system, audio server (PipeWire/PulseAudio/WASAPI/CoreAudio), 
-
-    and environment configuration.
-
-  - A minimal Proof-of-Concept (PoC) script or detailed reproduction steps.
-
-  - Recommended fixes or mitigation strategies (if available).
-
-
-
-Response Timeline:
-
-  - Acknowledgment within 48 to 72 hours.
-
-  - Periodic status updates provided during triage and patching.
-
-
-
-
-
-4. SECURITY CONSIDERATIONS FOR USERS & DEVELOPERS
-
--------------------------------------------------------------------------------
-
-* PRIVILEGE MINIMIZATION:
-
-  Do not execute audio capture daemons or pitch-shifting scripts with system-level 
-
-  privileges (root/Administrator) unless strictly necessary. Always prefer 
-
-  user-space audio routing.
-
-
-
-* AUDIO STREAM PRIVACY:
-
-  Real-time audio capture software can intercept all output/input streams passing 
-
-  through the active sound server. Ensure binaries are compiled from trusted 
-
-  source code to prevent unwanted logging or unauthorized streaming of private 
-
-  audio (e.g., calls, voice inputs).
-
-
-
-* DEPENDENCY MANAGEMENT:
-
-  Maintain updated dependencies for all digital signal processing (DSP) and audio 
-
-  capture libraries. Periodically audit third-party dependencies for known CVEs.
-
-
-
-===============================================================================
+### Dependency Management
+Regularly update and audit third-party Digital Signal Processing (DSP) and system audio libraries. Run dependency security scanners (such as `cargo audit`, `pip-audit`, or `npm audit`) to identify and patch known CVEs.
