@@ -55,3 +55,31 @@ Only audio that goes through the normal mixer on the music output. These bypass 
 - Pitch shifting can add small artifacts. Playing along with other instruments tuned to 440 will sound out of tune.
 
 **Bottom line:** 432 Hz is a fine personal taste, but not a health or spiritual upgrade.
+
+## Version history
+
+**v1.4** (current)
+- Fixed the effect not loading on Android 14 / HyperOS: the effect library header now reports library API version 3.0, which this device's audio HAL requires (version 2.0 was loaded and then rejected). The effect descriptor stays at control API 2.0, same as the stock effects.
+- Back to the clean module layout (no log, SELinux or boot scripts). Installing also removes the `/data/pitch432` folder and boot log left by v1.1-v1.3.
+
+**v1.3**
+- Debug build. Fixed the `magiskpolicy` syntax for creating the log folder's SELinux type (it accepts only one attribute per `type` statement).
+
+**v1.2**
+- Debug build. SELinux rules applied live with `magiskpolicy` at boot, because `sepolicy.rule` was not taking effect on this device.
+
+**v1.1**
+- Debug build. Added a file log (`/data/pitch432/pitch432.log`) with `config.txt` switches for log on/off and max log size (1 MB), because logcat was silenced on this ROM.
+
+**v1.0**
+- First release: SoundTouch pitch-shift effect (A=440 -> 432 Hz, tempo unchanged), UI-less privileged app that attaches it to the global music output, patched `audio_effects.xml` files, privapp permission allowlist.
+
+## Checking that it's active
+
+```sh
+dumpsys media.audio_flinger | grep -B2 -A6 "NOT loaded"      # pitch432 must not be listed here
+dumpsys media.audio_flinger | grep -A8 "Library pitch432"    # library registered
+dumpsys media.audio_flinger | grep -B12 "name: Pitch432"     # effect on session 0, Enabled = y
+```
+
+If logcat is empty, a module that disables logging is probably installed; turn it off and reboot to see effect loader messages (`logcat | grep -iE "EffectFactoryHAL|pitch"`).
